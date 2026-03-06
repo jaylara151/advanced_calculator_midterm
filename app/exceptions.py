@@ -1,0 +1,1 @@
+# Custom exceptions will be added here later.
