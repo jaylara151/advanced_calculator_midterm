@@ -55,3 +55,47 @@ def test_facade_clears_history():
     records = facade.get_history()
 
     assert records == []
+
+
+def test_save_to_csv(tmp_path):
+    history = CalculationHistory()
+    history.add_record("add", 5, 3, 8)
+
+    file_path = tmp_path / "history.csv"
+    history.save_to_csv(file_path)
+
+    assert file_path.exists()
+
+
+def test_load_from_csv(tmp_path):
+    history = CalculationHistory()
+    history.add_record("multiply", 6, 7, 42)
+
+    file_path = tmp_path / "history.csv"
+    history.save_to_csv(file_path)
+
+    new_history = CalculationHistory()
+    new_history.load_from_csv(file_path)
+
+    records = new_history.get_history()
+
+    assert len(records) == 1
+    assert records[0]["operation"] == "multiply"
+    assert records[0]["result"] == 42
+
+
+def test_facade_save_and_load_history(tmp_path):
+    facade = CalculatorFacade()
+    facade.calculate("subtract", 10, 4)
+
+    file_path = tmp_path / "history.csv"
+    facade.save_history(file_path)
+
+    new_facade = CalculatorFacade()
+    new_facade.load_history(file_path)
+
+    records = new_facade.get_history()
+
+    assert len(records) == 1
+    assert records[0]["operation"] == "subtract"
+    assert records[0]["result"] == 6

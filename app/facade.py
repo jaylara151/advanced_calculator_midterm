@@ -35,3 +35,11 @@ class CalculatorFacade:
     def clear_history(self):
         """Clear the calculation history."""
         self.history.clear_history()
+
+    def save_history(self, file_path):
+        """Save history to a CSV file."""
+        self.history.save_to_csv(file_path)
+
+    def load_history(self, file_path):
+        """Load history from a CSV file."""
+        self.history.load_from_csv(file_path)

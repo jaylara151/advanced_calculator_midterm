@@ -1,4 +1,5 @@
 from datetime import datetime
+import pandas as pd
 
 
 class CalculationHistory:
@@ -34,3 +35,23 @@ class CalculationHistory:
     def clear_history(self):
         """Remove all records from history."""
         self.history.clear()
+
+    def save_to_csv(self, file_path):
+        """
+        Save history to a CSV file using pandas.
+
+        Parameters:
+            file_path (str): Path to the CSV file
+        """
+        dataframe = pd.DataFrame(self.history)
+        dataframe.to_csv(file_path, index=False)
+
+    def load_from_csv(self, file_path):
+        """
+        Load history from a CSV file using pandas.
+
+        Parameters:
+            file_path (str): Path to the CSV file
+        """
+        dataframe = pd.read_csv(file_path)
+        self.history = dataframe.to_dict(orient="records")
