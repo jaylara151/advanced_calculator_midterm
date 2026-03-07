@@ -1,6 +1,7 @@
 from app.calculator import Calculator
 from app.operation_factory import OperationFactory
 from app.history import CalculationHistory
+from app.logger_setup import get_logger
 
 
 class CalculatorFacade:
@@ -10,6 +11,7 @@ class CalculatorFacade:
         """Create a calculator facade with calculator and history instances."""
         self.calculator = Calculator()
         self.history = CalculationHistory()
+        self.logger = get_logger()
 
     def calculate(self, operation_name, a, b):
         """
@@ -26,6 +28,13 @@ class CalculatorFacade:
         operation = OperationFactory.create_operation(operation_name)
         result = self.calculator.calculate(operation, a, b)
         self.history.add_record(operation_name, a, b, result)
+        self.logger.info(
+            "Calculation performed: %s %s %s = %s",
+            operation_name,
+            a,
+            b,
+            result,
+        )
         return result
 
     def get_history(self):

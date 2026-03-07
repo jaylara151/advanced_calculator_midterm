@@ -1,6 +1,7 @@
 from app.history import CalculationHistory
 from app.facade import CalculatorFacade
-
+import os 
+from app.logger_setup import get_logger 
 
 def test_add_record():
     history = CalculationHistory()
@@ -99,3 +100,12 @@ def test_facade_save_and_load_history(tmp_path):
     assert len(records) == 1
     assert records[0]["operation"] == "subtract"
     assert records[0]["result"] == 6
+
+def test_logger_is_created():
+    logger = get_logger()
+    assert logger is not None
+
+
+def test_log_file_path_exists():
+    logger = get_logger()
+    assert logger.name == "calculator_app"
