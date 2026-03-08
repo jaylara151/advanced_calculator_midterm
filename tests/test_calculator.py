@@ -135,3 +135,21 @@ def test_facade_invalid_operation():
     facade = CalculatorFacade()
     with pytest.raises(InvalidInputError):
         facade.calculate("banana", 5, 3)
+
+
+def test_facade_divide_by_zero_error():
+    facade = CalculatorFacade()
+    with pytest.raises(DivisionByZeroError):
+        facade.calculate("divide", 10, 0)
+
+
+def test_facade_negative_root_error():
+    facade = CalculatorFacade()
+    with pytest.raises(NegativeRootError):
+        facade.calculate("root", -16, 2)
+
+
+def test_facade_invalid_operation_error():
+    facade = CalculatorFacade()
+    with pytest.raises(InvalidInputError):
+        facade.calculate("not_real", 1, 2)

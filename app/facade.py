@@ -25,17 +25,21 @@ class CalculatorFacade:
         Returns:
             The result of the calculation
         """
-        operation = OperationFactory.create_operation(operation_name)
-        result = self.calculator.calculate(operation, a, b)
-        self.history.add_record(operation_name, a, b, result)
-        self.logger.info(
-            "Calculation performed: %s %s %s = %s",
-            operation_name,
-            a,
-            b,
-            result,
-        )
-        return result
+        try:
+            operation = OperationFactory.create_operation(operation_name)
+            result = self.calculator.calculate(operation, a, b)
+            self.history.add_record(operation_name, a, b, result)
+            self.logger.info(
+                "Calculation performed: %s %s %s = %s",
+                operation_name,
+                a,
+                b,
+                result,
+            )
+            return result
+        except Exception as error:
+            self.logger.error("Calculation failed: %s", error)
+            raise
 
     def get_history(self):
         """Return the full calculation history."""
