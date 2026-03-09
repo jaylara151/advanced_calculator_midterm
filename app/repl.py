@@ -1,3 +1,10 @@
+from app.command import (
+    CalculateCommand,
+    HistoryCommand,
+    ClearHistoryCommand,
+    SaveHistoryCommand,
+    LoadHistoryCommand,
+)
 from app.facade import CalculatorFacade
 from app.exceptions import CalculatorError, InvalidInputError
 
@@ -62,7 +69,9 @@ class CalculatorREPL:
             return
 
         if command == "history":
-            records = self.facade.get_history()
+            history_command = HistoryCommand(self.facade)
+            records = history_command.execute()
+
             if not records:
                 print("No calculation history found.")
                 return
@@ -77,17 +86,20 @@ class CalculatorREPL:
             return
 
         if command == "clear":
-            self.facade.clear_history()
+            clear_command = ClearHistoryCommand(self.facade)
+            clear_command.execute()
             print("Calculation history cleared.")
             return
 
         if command == "save":
-            self.facade.save_history("data/calculator_history.csv")
+            save_command = SaveHistoryCommand(self.facade, "data/calculator_history.csv")
+            save_command.execute()
             print("History saved to data/calculator_history.csv")
             return
 
         if command == "load":
-            self.facade.load_history("data/calculator_history.csv")
+            load_command = LoadHistoryCommand(self.facade, "data/calculator_history.csv")
+            load_command.execute()
             print("History loaded from data/calculator_history.csv")
             return
 
@@ -98,7 +110,10 @@ class CalculatorREPL:
         try:
             a = self.parse_number(parts[1])
             b = self.parse_number(parts[2])
-            result = self.facade.calculate(command, a, b)
+
+            calculate_command = CalculateCommand(self.facade, command, a, b)
+            result = calculate_command.execute()
+
             print(f"Result: {result}")
         except CalculatorError as error:
             print(f"Error: {error}")
