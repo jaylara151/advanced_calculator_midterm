@@ -3,6 +3,7 @@ from app.operation_factory import OperationFactory
 from app.history import CalculationHistory
 from app.logger_setup import get_logger
 from app.memento import HistoryCaretaker
+from app.observers import LoggingObserver, AutoSaveObserver
 
 
 class CalculatorFacade:
@@ -14,6 +15,16 @@ class CalculatorFacade:
         self.history = CalculationHistory()
         self.logger = get_logger()
         self.caretaker = HistoryCaretaker()
+
+        self.observers = [
+            LoggingObserver(),
+            AutoSaveObserver(),
+        ]
+
+    def notify_observers(self, record):
+        """Notify all observers about a new calculation record."""
+        for observer in self.observers:
+            observer.update(record)
 
     def calculate(self, operation_name, a, b):
         """
@@ -33,6 +44,9 @@ class CalculatorFacade:
             operation = OperationFactory.create_operation(operation_name)
             result = self.calculator.calculate(operation, a, b)
             self.history.add_record(operation_name, a, b, result)
+
+            latest_record = self.history.get_history()[-1]
+            self.notify_observers(latest_record)
 
             self.logger.info(
                 "Calculation performed: %s %s %s = %s",

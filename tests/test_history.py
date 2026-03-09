@@ -2,6 +2,7 @@ from app.history import CalculationHistory
 from app.facade import CalculatorFacade
 import os 
 from app.logger_setup import get_logger 
+from app.observers import LoggingObserver, AutoSaveObserver
 
 def test_add_record():
     history = CalculationHistory()
@@ -109,3 +110,50 @@ def test_logger_is_created():
 def test_log_file_path_exists():
     logger = get_logger()
     assert logger.name == "calculator_app"
+
+
+def test_logging_observer_updates():
+    observer = LoggingObserver()
+
+    record = {
+        "operation": "add",
+        "a": 5,
+        "b": 3,
+        "result": 8,
+        "timestamp": "2026-03-09 10:00:00",
+    }
+
+    observer.update(record)
+
+    assert len(observer.logged_records) == 1
+    assert observer.logged_records[0]["operation"] == "add"
+
+
+def test_autosave_observer_updates():
+    observer = AutoSaveObserver()
+
+    record = {
+        "operation": "multiply",
+        "a": 6,
+        "b": 7,
+        "result": 42,
+        "timestamp": "2026-03-09 10:00:00",
+    }
+
+    observer.update(record)
+
+    assert len(observer.saved_records) == 1
+    assert observer.saved_records[0]["result"] == 42
+
+
+def test_facade_notifies_observers():
+    facade = CalculatorFacade()
+    facade.calculate("add", 5, 3)
+
+    logging_observer = facade.observers[0]
+    autosave_observer = facade.observers[1]
+
+    assert len(logging_observer.logged_records) == 1
+    assert len(autosave_observer.saved_records) == 1
+    assert logging_observer.logged_records[0]["operation"] == "add"
+    assert autosave_observer.saved_records[0]["result"] == 8
