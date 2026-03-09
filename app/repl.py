@@ -7,14 +7,16 @@ from app.command import (
 )
 from app.facade import CalculatorFacade
 from app.exceptions import CalculatorError, InvalidInputError
+from app.config import AppConfig
 
 
 class CalculatorREPL:
     """Command-line calculator application."""
 
     def __init__(self):
-        """Create the REPL with a calculator facade."""
+        """Create the REPL with a calculator facade and config."""
         self.facade = CalculatorFacade()
+        self.config = AppConfig()
         self.running = True
 
     def show_help(self):
@@ -45,6 +47,12 @@ class CalculatorREPL:
             return float(value)
         except ValueError as error:
             raise InvalidInputError(f"Invalid number: {value}") from error
+
+    def format_result(self, result):
+        """Format a result using the configured decimal precision."""
+        if isinstance(result, float):
+            return round(result, self.config.precision)
+        return result
 
     def handle_command(self, user_input):
         """
@@ -94,15 +102,15 @@ class CalculatorREPL:
             return
 
         if command == "save":
-            save_command = SaveHistoryCommand(self.facade, "data/calculator_history.csv")
+            save_command = SaveHistoryCommand(self.facade, self.config.history_file)
             save_command.execute()
-            print("History saved to data/calculator_history.csv")
+            print(f"History saved to {self.config.history_file}")
             return
 
         if command == "load":
-            load_command = LoadHistoryCommand(self.facade, "data/calculator_history.csv")
+            load_command = LoadHistoryCommand(self.facade, self.config.history_file)
             load_command.execute()
-            print("History loaded from data/calculator_history.csv")
+            print(f"History loaded from {self.config.history_file}")
             return
 
         if command == "undo":
@@ -125,8 +133,9 @@ class CalculatorREPL:
 
             calculate_command = CalculateCommand(self.facade, command, a, b)
             result = calculate_command.execute()
+            formatted_result = self.format_result(result)
 
-            print(f"Result: {result}")
+            print(f"Result: {formatted_result}")
         except CalculatorError as error:
             print(f"Error: {error}")
         except Exception as error:
