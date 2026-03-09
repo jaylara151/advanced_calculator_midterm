@@ -34,6 +34,8 @@ class CalculatorREPL:
         print("  clear")
         print("  save")
         print("  load")
+        print("  undo")
+        print("  redo")
         print("  help")
         print("  exit\n")
 
@@ -101,6 +103,16 @@ class CalculatorREPL:
             load_command = LoadHistoryCommand(self.facade, "data/calculator_history.csv")
             load_command.execute()
             print("History loaded from data/calculator_history.csv")
+            return
+
+        if command == "undo":
+            self.facade.undo()
+            print("Undo completed.")
+            return
+
+        if command == "redo":
+            self.facade.redo()
+            print("Redo completed.")
             return
 
         if len(parts) != 3:

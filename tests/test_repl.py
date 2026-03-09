@@ -93,3 +93,47 @@ def test_save_and_load_history_commands(tmp_path):
     records = new_facade.get_history()
     assert len(records) == 1
     assert records[0]["operation"] == "subtract"
+
+
+def test_repl_undo_command():
+    repl = CalculatorREPL()
+    repl.handle_command("add 5 3")
+    assert len(repl.facade.get_history()) == 1
+
+    repl.handle_command("undo")
+    assert repl.facade.get_history() == []
+
+
+def test_repl_redo_command():
+    repl = CalculatorREPL()
+    repl.handle_command("add 5 3")
+    repl.handle_command("undo")
+    repl.handle_command("redo")
+
+    history = repl.facade.get_history()
+    assert len(history) == 1
+    assert history[0]["result"] == 8
+
+
+def test_facade_undo_multiple_steps():
+    facade = CalculatorFacade()
+    facade.calculate("add", 5, 3)
+    facade.calculate("multiply", 6, 7)
+
+    assert len(facade.get_history()) == 2
+
+    facade.undo()
+    assert len(facade.get_history()) == 1
+    assert facade.get_history()[0]["operation"] == "add"
+
+
+def test_facade_redo_multiple_steps():
+    facade = CalculatorFacade()
+    facade.calculate("add", 5, 3)
+    facade.calculate("multiply", 6, 7)
+
+    facade.undo()
+    facade.redo()
+
+    assert len(facade.get_history()) == 2
+    assert facade.get_history()[1]["operation"] == "multiply"
