@@ -1,12 +1,16 @@
+import pytest
+
 from app.repl import CalculatorREPL
+from app.facade import CalculatorFacade
 from app.command import (
+    Command,
     CalculateCommand,
     HistoryCommand,
     ClearHistoryCommand,
     SaveHistoryCommand,
     LoadHistoryCommand,
 )
-from app.facade import CalculatorFacade
+from app.observers import Observer
 
 
 def test_repl_initializes():
@@ -137,3 +141,72 @@ def test_facade_redo_multiple_steps():
 
     assert len(facade.get_history()) == 2
     assert facade.get_history()[1]["operation"] == "multiply"
+
+
+def test_repl_empty_command():
+    repl = CalculatorREPL()
+    repl.handle_command("")
+    assert repl.running is True
+
+
+def test_repl_history_after_calculation():
+    repl = CalculatorREPL()
+    repl.handle_command("add 5 3")
+    repl.handle_command("history")
+    assert len(repl.facade.get_history()) == 1
+
+
+def test_repl_save_and_load_commands():
+    repl = CalculatorREPL()
+    repl.handle_command("add 5 3")
+    repl.handle_command("save")
+    repl.handle_command("clear")
+    assert repl.facade.get_history() == []
+
+    repl.handle_command("load")
+    assert len(repl.facade.get_history()) >= 1
+
+
+def test_repl_undo_redo_commands():
+    repl = CalculatorREPL()
+    repl.handle_command("add 5 3")
+    assert len(repl.facade.get_history()) == 1
+
+    repl.handle_command("undo")
+    assert repl.facade.get_history() == []
+
+    repl.handle_command("redo")
+    assert len(repl.facade.get_history()) == 1
+
+
+def test_repl_invalid_operation_command():
+    repl = CalculatorREPL()
+    repl.handle_command("banana 5 3")
+    assert repl.running is True
+
+
+def test_repl_divide_by_zero_command():
+    repl = CalculatorREPL()
+    repl.handle_command("divide 10 0")
+    assert repl.running is True
+
+
+def test_repl_root_negative_even_command():
+    repl = CalculatorREPL()
+    repl.handle_command("root -16 2")
+    assert repl.running is True
+
+
+def test_repl_format_result():
+    repl = CalculatorREPL()
+    assert repl.format_result(3.14159) == round(3.14159, repl.config.precision)
+
+
+def test_base_command_raises_not_implemented():
+    with pytest.raises(NotImplementedError):
+        Command().execute()
+
+
+def test_base_observer_raises_not_implemented():
+    with pytest.raises(NotImplementedError):
+        Observer().update({})

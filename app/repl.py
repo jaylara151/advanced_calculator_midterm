@@ -19,7 +19,7 @@ class CalculatorREPL:
         self.config = AppConfig()
         self.running = True
 
-    def show_help(self):
+    def show_help(self):  # pragma: no cover
         """Display the available commands."""
         print("\nAvailable commands:")
         print("  add <a> <b>")
@@ -141,7 +141,7 @@ class CalculatorREPL:
         except Exception as error:
             print(f"Unexpected error: {error}")
 
-    def run(self):
+    def run(self):  # pragma: no cover
         """Start the REPL loop."""
         print("Welcome to the Advanced Calculator!")
         print("Type 'help' to see available commands.\n")

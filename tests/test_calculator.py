@@ -153,3 +153,33 @@ def test_facade_invalid_operation_error():
     facade = CalculatorFacade()
     with pytest.raises(InvalidInputError):
         facade.calculate("not_real", 1, 2)
+
+
+def test_root_degree_zero():
+    calculator = Calculator()
+    with pytest.raises(DivisionByZeroError):
+        calculator.calculate(RootOperation(), 9, 0)
+
+
+def test_modulo_by_zero():
+    calculator = Calculator()
+    with pytest.raises(DivisionByZeroError):
+        calculator.calculate(ModuloOperation(), 10, 0)
+
+
+def test_integer_division_by_zero():
+    calculator = Calculator()
+    with pytest.raises(DivisionByZeroError):
+        calculator.calculate(IntegerDivisionOperation(), 10, 0)
+
+
+def test_percentage_difference_zero_average():
+    calculator = Calculator()
+    with pytest.raises(DivisionByZeroError):
+        calculator.calculate(PercentageDifferenceOperation(), 0, 0)
+
+
+def test_percentage_change_from_zero():
+    calculator = Calculator()
+    with pytest.raises(DivisionByZeroError):
+        calculator.calculate(PercentageChangeOperation(), 0, 100)
